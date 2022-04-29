@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "genetic-nueral-net"
+version = "0.1.0"
+description = ""
+authors = ["EHoll <ehollidge@hotmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+neat-python = "^0.92"
+pygame = "^2.1.2"
+
+[tool.poetry.dev-dependencies]
+black = {version = "^22.3.0", allow-prereleases = true}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
