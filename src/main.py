@@ -37,33 +37,62 @@ font = pygame.font.Font(os.path.join(home_folder, "rsrc/Other/HeyHaters.ttf"), 2
 
 class Dinosaur(object):
     def __init__(self, x_pos=80, y_pos=310, jump_vel=8.5, image=dino["run"][0]):
-        self.x_pos = x_pos
-        self.y_pos = y_pos
+        self.default_x_pos = x_pos
+        self.default_y_pos = y_pos
+        self.default_jump_vel = jump_vel
         self.jump_vel = jump_vel
         self.image = image
         self.dino_run = True
-        self.duno_jump = False
+        self.dino_jump = False
         self.rect = pygame.Rect(
-            self.x_pos, self.y_pos, self.image.get_width(), self.image.get_height()
+            self.default_x_pos,
+            self.default_y_pos,
+            self.image.get_width(),
+            self.image.get_height(),
         )
         self.step_index = 0
 
     def update(self):
-        pass
+        if self.dino_run:
+            self.run()
+        if self.dino_jump:
+            self.jump()
+        if self.step_index >= 10:
+            self.step_index = 0
 
     def jump(self):
-        pass
+        global dino
+
+        self.image = dino["jump"][0]
+
+        if self.dino_jump:
+            self.rect.y -= self.jump_vel * 4
+            self.jump_vel -= 0.8
+        if self.jump_vel <= -self.default_jump_vel:
+            self.set_jump(False)
+            self.jump_vel = self.default_jump_vel
 
     def run(self):
-        pass
+        global dino
+
+        self.image = dino["run"][self.step_index // 5]
+        self.rect.x = self.default_x_pos
+        self.rect.y = self.default_y_pos
+        self.step_index += 1
 
     def draw(self, screen):
-        pass
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def set_jump(self, jump: bool):
+        self.dino_jump = jump
+        self.dino_run = not jump
 
 
 def main():
-    clock = pygame.time.Clock()
+    global screen
 
+    clock = pygame.time.Clock()
+    dinosaurs = [Dinosaur()]
     run = True
     while run:
         for event in pygame.event.get():
@@ -72,6 +101,15 @@ def main():
                 sys.exit()
 
         screen.fill((255, 255, 255, 255))
+
+        user_input = pygame.key.get_pressed()
+        if user_input[pygame.K_SPACE]:
+            dinosaurs[0].set_jump(True)
+
+        for dino in dinosaurs:
+            dino.update()
+            dino.draw(screen)
+
         clock.tick(30)
         pygame.display.update()
 
