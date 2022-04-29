@@ -2,6 +2,8 @@ import pygame
 import os
 import random
 import sys
+import neat
+import math
 
 pygame.init()
 
@@ -12,6 +14,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Location Variables
 home_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+config_path = os.path.join(home_folder, "rsrc/config.txt")
 
 # Static Game Variables
 dino = {
@@ -44,6 +47,10 @@ score = 0
 score_text = "Score: " + str(score)
 obstacles = []
 dinosaurs = []
+
+# Network Variables
+genomes_list = []
+nueral_nets = []
 
 
 class Dinosaur(object):
@@ -172,22 +179,69 @@ def spawn_obstacles():
             obstacles.append(LargeCactus(random.randint(1, 3)))
 
 
+def remove_dino(index):
+    global dinosaurs, genomes_list, nueral_nets
+
+    dinosaurs.pop(index)
+    genomes_list.pop(index)
+    nueral_nets.pop(index)
+
+
 def manage_obstacles():
-    global obstacles, screen, dinosaurs
+    global obstacles, screen, dinosaurs, genomes_list, score
 
     for obstacle in obstacles:
         obstacle.draw(screen)
         obstacle.update()
-        for dinosaur in dinosaurs:
+        feed_forward(obstacle)
+        for i, dinosaur in enumerate(dinosaurs):
             if dinosaur.rect.colliderect(obstacle.rect):
-                dinosaurs.remove(dinosaur)
+                genomes_list[i].fitness += score
+                remove_dino(i)
 
 
-def main():
-    global screen, game_speed, background_x_pos, background_y_pos, score, dinosaurs
+def setup_dinosaurs(genomes, config):
+    global dinosaurs, genomes_list, nueral_nets
+
+    dinosaurs = []
+    genomes_list = []
+    nueral_nets = []
+
+    for genome_id, genome in genomes:
+        dinosaurs.append(Dinosaur())
+        genomes_list.append(genome)
+        net = neat.nn.FeedForwardNetwork.create(genome, config)
+        nueral_nets.append(net)
+        genome.fitness = 0
+
+
+def distance(pos_a, pos_b):
+    dx = pos_a[0] - pos_b[0]
+    dy = pos_a[1] - pos_b[1]
+    return math.sqrt(dx**2 + dy**2)
+
+
+def feed_forward(obstacle):
+    global dinosaurs, genomes_list, nueral_nets
+
+    for i, dinosaur in enumerate(dinosaurs):
+        output = nueral_nets[i].activate(
+            (
+                dinosaur.rect.y,
+                distance((dinosaur.rect.x, dinosaur.rect.y), obstacle.rect.midtop),
+            )
+        )
+        if output[0] > 0.5 and dinosaur.rect.y == dinosaur.default_y_pos:
+            dinosaur.dino_jump = True
+            dinosaur.dino_run = False
+
+
+def eval(genomes, config):
+    global screen, game_speed, background_x_pos, background_y_pos, score, dinosaurs, genomes_list, nueral_nets
 
     clock = pygame.time.Clock()
-    dinosaurs = [Dinosaur()]
+
+    setup_dinosaurs(genomes, config)
 
     run = True
     while run:
@@ -219,5 +273,18 @@ def main():
         pygame.display.update()
 
 
+def run(config_path):
+    config = neat.config.Config(
+        neat.DefaultGenome,
+        neat.DefaultReproduction,
+        neat.DefaultSpeciesSet,
+        neat.DefaultStagnation,
+        config_path,
+    )
+
+    pop = neat.Population(config)
+    pop.run(eval, 50)
+
+
 if __name__ == "__main__":
-    main()
+    run(config_path)
