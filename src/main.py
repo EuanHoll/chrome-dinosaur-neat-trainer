@@ -259,7 +259,7 @@ def feed_forward():
         output = nueral_nets[i].activate(
             (
                 dinosaur.rect.y,
-                distance((dinosaur.rect.x, dinosaur.rect.y), obstacles[0].rect.midleft)
+                distance((dinosaur.rect.x, dinosaur.rect.y), obstacles[0].rect.topleft)
                 if len(obstacles) >= 1
                 else 500,
                 game_speed,
