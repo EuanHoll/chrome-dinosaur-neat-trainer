@@ -6,6 +6,7 @@ import neat
 import math
 import pickle
 import argparse
+import json
 
 pygame.init()
 
@@ -19,6 +20,7 @@ home_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 config_path = os.path.join(home_folder, "rsrc/config.txt")
 winner_path = os.path.join(home_folder, "rsrc/winner.nn")
 input_path = os.path.join(home_folder, "rsrc/winner.nn")
+high_score_path = os.path.join(home_folder, "rsrc/high_score.txt")
 
 # Static Game Variables
 dino = {
@@ -251,15 +253,16 @@ def distance(pos_a, pos_b):
 
 
 def feed_forward():
-    global dinosaurs, genomes_list, nueral_nets, obstacle_spawned, obstacles
+    global dinosaurs, genomes_list, nueral_nets, obstacle_spawned, obstacles, game_speed
 
     for i, dinosaur in enumerate(dinosaurs):
         output = nueral_nets[i].activate(
             (
                 dinosaur.rect.y,
-                distance((dinosaur.rect.x, dinosaur.rect.y), obstacles[0].rect.midtop)
+                distance((dinosaur.rect.x, dinosaur.rect.y), obstacles[0].rect.midleft)
                 if len(obstacles) >= 1
                 else 500,
+                game_speed,
             )
         )
         if output[0] > 0.5 and dinosaur.rect.y == dinosaur.default_y_pos:
@@ -275,7 +278,9 @@ def statistics():
         "Dinosaurs Alive: " + str(len(dinosaurs)), True, (0, 0, 0)
     )
     generation_number = font.render(
-        "Generation: " + str(pop.generation) + " / " + str(generations), True, (0, 0, 0)
+        "Generation: " + str(pop.generation + 1) + " / " + str(generations),
+        True,
+        (0, 0, 0),
     )
     game_speed_surface = font.render("Game Speed: " + str(game_speed), True, (0, 0, 0))
 
@@ -393,7 +398,11 @@ def parse_args():
         help="Path to save the winner file to.",
     )
     parser.add_argument(
-        "-ip", "--input_path", type=existing_path, default="", help="Path to"
+        "-ip",
+        "--input_path",
+        type=existing_path,
+        default="",
+        help="Path to the input nueral network.",
     )
     parser.add_argument(
         "-up",
@@ -453,3 +462,11 @@ if __name__ == "__main__":
         train()
     elif mode == "run":
         run()
+    with open(high_score_path, "w") as f:
+        output = {
+            "score": str(score),
+            "game_speed": str(game_speed),
+        }
+        json.dump(output, f, indent=4)
+    pygame.quit()
+    sys.exit(0)
