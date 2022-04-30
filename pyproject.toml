@@ -8,6 +8,7 @@ authors = ["EHoll <ehollidge@hotmail.com>"]
 python = "^3.8"
 neat-python = "^0.92"
 pygame = "^2.1.2"
+argparse = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^22.3.0", allow-prereleases = true}
