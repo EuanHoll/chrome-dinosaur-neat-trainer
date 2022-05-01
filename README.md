@@ -1,4 +1,4 @@
-# Genetic Nueral Net
+# Chrome Dinosaur Neat Trainer
 
 ## Description
 
