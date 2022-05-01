@@ -6,6 +6,12 @@ This is my first go at using python-neat to learn about genetic algorithms.
 This was created following the examples from [Code Bucket's NEAT Tutorials](https://www.youtube.com/playlist?list=PL30AETbxgR-d03tf_HIr8-OA1gmClI3mE) though the code has been edited heavily to make it easier to understand and use.
 Some extra features have also been added.
 
+### Conclusion of learning
+
+During this project I learned that the dino game, the longer it goes the more luck based it becomes.
+This is due to the size of the cacti going towards the player and how they are randomised.
+It makes this a good way to start seeing a network improve over time for a beginner, however there's a very low cap on how many generations it'll take to get the "best" result.
+
 ## Installation
 
 You can use either `poetry` or `pip` for the install. \
