@@ -46,3 +46,8 @@ optional arguments:
 ## Outputs
 
 The program will always output the "winner" or best of a batch. This will be writen to the `winner_path`. The high_score of the last generation will also be written to `rsrc/high_score.txt`.
+
+
+## License
+
+This project is released under the Creative Commons Attribution-NonCommercial (CC BY-NC) license. No commercial use is allowed. You can find more information about this license at the following link: https://creativecommons.org/licenses/by-nc/4.0/
